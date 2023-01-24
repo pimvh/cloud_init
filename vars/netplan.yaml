@@ -1,0 +1,12 @@
+---
+_netplan:
+  network:
+    version: 2
+    ethernets:
+      enp1s0:
+        dhcp4: false
+        addresses:
+          - "{{ cloud_init_networkdata.ipv4 }}"
+          - "{{ cloud_init_networkdata.ipv6 }}"
+        routes: "{{ cloud_init_networkdata.routes | default(cloud_init_netplan_routes, true) }}"
+        nameservers: "{{ cloud_init_networkdata.name_servers | default(cloud_init_netplan_nameservers, true) }}"

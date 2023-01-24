@@ -1,0 +1,85 @@
+---
+- name: Verify that required variables are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }}  is defined"
+      - "{{ item }} | length > 0"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_machine_name
+    - cloud_init_userdata
+    - cloud_init_networkdata
+
+- name: Verify that required booleans are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }}  is defined"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_register_github_key
+    - cloud_init_enable_ssh_ca
+    - cloud_init_enable_ansible_pull
+    - cloud_init_reboot_on_finish
+
+- name: Verify that required ssh_ca attributes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }}  is defined"
+      - "{{ item }} | length > 0"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_ssh_host_ca_privatekey
+    - cloud_init_ssh_host_ca_privatekey_pass
+    - cloud_init_ssh_host_ca_publickey
+    - cloud_init_ssh_user_ca_publickeys
+    - cloud_init_host_ca_validity_period
+    - cloud_init_ssh_ca_runcmd
+  when: cloud_init_enable_ssh_ca is sameas true
+
+- name: Verify that required github_register attributes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }}  is defined"
+      - "{{ item }} | length > 0"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_github_token
+  when: cloud_init_register_github_key is sameas true
+
+- name: Verify that required github_register attributes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }}  is defined"
+      - "{{ item }} | length > 0"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_ansible_pull_url
+    - cloud_init_ansible_playbook_name
+  when: cloud_init_enable_ansible_pull is sameas true
+
+- name: Verify that required cloud_init attributes are defined
+  ansible.builtin.include_tasks:
+    file: assert_cloud_init_vars.yaml
+    apply:
+      delegate_to: localhost
+      run_once: true

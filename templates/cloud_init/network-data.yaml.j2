@@ -1,0 +1,3 @@
+#cloud-config
+{{ ansible_managed | comment }}
+{{ _netplan | to_nice_yaml(sort_keys=False) }}

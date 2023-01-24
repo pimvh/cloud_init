@@ -1,0 +1,73 @@
+---
+- name: Verify that required cloud_init_userdata attributes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }} is defined"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_userdata.hostname
+    - cloud_init_userdata.fqdn
+    - cloud_init_userdata.groups
+    - cloud_init_userdata.users
+    - cloud_init_userdata.runcmd
+
+# Consider adding this in some form
+# - name: Verify that required cloud_init_userdata user attributes are defined
+#   ansible.builtin.assert:
+#     that:
+#       - "{{ item.name }} is defined"
+#       - "{{ item.gecos }} is defined"
+#       - "{{ item.shell }} is defined"
+#       - "{{ item.sudo }} is defined"
+#       - "{{ item.groups }} is defined"
+#       - "{{ item.lock_passwd }} is defined"
+#       - "{{ item.passwd }} is defined"
+#       - "{{ item.ssh_authorized_keys }} is defined"
+#     fail_msg: "{{ item }} needs to be set for the role to work"
+#     success_msg: "Required variable {{ item }} is defined"
+#   changed_when: false
+#   diff: false
+#   loop: "{{ cloud_init_userdata.users }}"
+
+- name: Verify that required cloud_init_networkdata attributes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }} is defined"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_networkdata.ipv4
+    - cloud_init_networkdata.ipv6
+
+- name: Verify that required cloud_init_networkdata routes are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }} is defined"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_netplan_routes
+  when: not cloud_init_networkdata.routes is defined
+
+- name: Verify that required cloud_init_networkdata nameservers are defined
+  ansible.builtin.assert:
+    that:
+      - "{{ item }} is defined"
+      - "{{ item }} != None"
+    fail_msg: "{{ item }} needs to be set for the role to work"
+    success_msg: "Required variable {{ item }} is defined"
+  changed_when: false
+  diff: false
+  loop:
+    - cloud_init_netplan_nameservers
+  when: not cloud_init_networkdata.nameservers is defined

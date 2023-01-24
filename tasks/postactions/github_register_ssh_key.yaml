@@ -1,0 +1,12 @@
+---
+- name: Add SSH key for ansible user for VM host
+  block:
+    - name: Register SSH key with Github
+      action:
+        module: community.general.github_key
+        name: "Ansible-Pull User for {{ cloud_init_machine_name }}"
+        token: "{{ cloud_init_github_token }}"
+        pubkey: "{{ _github_public_sshkey }}"
+      delegate_to: localhost
+      when: cloud_init_register_github_key is sameas true
+  ignore_errors: "{{ ansible_check_mode }}"

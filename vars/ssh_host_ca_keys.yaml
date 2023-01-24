@@ -1,0 +1,5 @@
+---
+_ssh_host_ca_keys:
+  ed25519_private: "{{ _hostkey_private_sshkey }}"
+  ed25519_public: "{{ _hostkey_public_sshkey }}"
+  ed25519_certificate: "{{ _hostkey_cert_sshkey }}"

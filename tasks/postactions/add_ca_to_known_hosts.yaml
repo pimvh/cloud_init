@@ -1,0 +1,7 @@
+---
+- name: Add host to known hosts hostkeys
+  ansible.builtin.known_hosts:
+    name: "{{ cloud_init_userdata.fqdn }}"
+    key: "@cert-authority {{ cloud_init_userdata.fqdn }} {{ cloud_init_ssh_host_ca_publickey }}"
+    state: present
+  delegate_to: localhost

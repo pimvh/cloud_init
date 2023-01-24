@@ -1,0 +1,14 @@
+---
+_ssh_ca_write_files:
+  - path: /etc/ssh/host_ca.pub
+    owner: root:root
+    permissions: "0644"
+    content: "{{ cloud_init_ssh_host_ca_publickey }}"
+
+  - path: /etc/ssh/ssh_trusted_user_ca_keys
+    owner: root:root
+    permissions: "0644"
+    content: |
+      {% for key in cloud_init_ssh_user_ca_publickeys %}
+      {{ key }}
+      {% endfor -%}

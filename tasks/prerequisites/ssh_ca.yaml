@@ -1,0 +1,10 @@
+---
+- name: Fetch ssh_ca_write_files when not defined
+  ansible.builtin.include_vars:
+    file: ssh_ca_write_files.yaml
+  when: not cloud_init_userdata.ssh_ca_write_files is defined
+
+- name: Fetch ssh_ca_write_files when not defined
+  ansible.builtin.set_fact:
+    _ssh_ca_write_files: "{{ cloud_init_userdata.ssh_ca_write_files }}"
+  when: cloud_init_userdata.ssh_ca_write_files is defined

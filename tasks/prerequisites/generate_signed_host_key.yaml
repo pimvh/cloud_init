@@ -1,0 +1,73 @@
+- name: Generate signed host key
+  delegate_to: localhost
+  block:
+    - name: Create and change permission on temporary key directory (clientside)
+      ansible.builtin.tempfile:
+        state: directory
+      check_mode: false
+      changed_when: false
+      delegate_to: "localhost"
+      register: _tempfile
+
+    - name: Generate SSH host key
+      ansible.builtin.include_role:
+        name: ssh_keygen
+        apply:
+          delegate_to: localhost
+      vars:
+        ssh_keygen_storagedir: "{{ _tempfile.path }}"
+        ssh_keygen_keyname: "ssh_host_ed25519_key"
+        ssh_keygen_comment: "root@{{ cloud_init_userdata.hostname }}"
+        ssh_keygen_cipher: ed25519
+        ssh_keygen_cipher_options: "-q -N ''"
+
+    - name: Write SSH host CA private key to disk
+      ansible.builtin.copy:
+        dest: "{{ _tempfile.path }}/host_ca"
+        content: "{{ cloud_init_ssh_host_ca_privatekey }}"
+        mode: u=rw,o=,g=
+      no_log: true
+
+    - name: sign generated SSH host key with private key
+      ansible.builtin.command: >
+        ssh-keygen
+         -I "{{ cloud_init_userdata.hostname }}"
+         -s {{ _tempfile.path }}/host_ca
+         -h
+         -n "{{ cloud_init_userdata.hostname }},{{ cloud_init_userdata.fqdn }}"
+         -V -5m:+{{ cloud_init_host_ca_validity_period }}
+         -P "{{ cloud_init_ssh_host_ca_privatekey_pass }}"
+         {{ _tempfile.path }}/ssh_host_ed25519_key.pub
+      changed_when: true
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: Show key
+      ansible.builtin.command: >
+        ssh-keygen -L -f {{ _tempfile.path }}/ssh_host_ed25519_key-cert.pub
+      changed_when: false
+      diff: true
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: Set generated SSH host key as fact
+      block:
+        - name: Set fact
+          ansible.builtin.set_fact:
+            # do to not strip newlines
+            _hostkey_public_sshkey: "{{ lookup('file', _tempfile.path + '/ssh_host_ed25519_key.pub', rstrip=false) }}"
+            _hostkey_cert_sshkey: "{{ lookup('file', _tempfile.path + '/ssh_host_ed25519_key-cert.pub', rstrip=false) }}"
+            _hostkey_private_sshkey: "{{ lookup('file', _tempfile.path + '/ssh_host_ed25519_key', rstrip=false) }}"
+      rescue:
+        - name: Set default values
+          ansible.builtin.set_fact:
+            _hostkey_public_sshkey: "<< will be generated >>"
+            _hostkey_cert_sshkey: "<< will be generated >>"
+            _hostkey_private_sshkey: "<< will be generated >>"
+
+  always:
+    - name: Remove temporary directory (clientside)
+      ansible.builtin.file:
+        name: "{{ _tempfile.path }}"
+        state: absent
+      check_mode: false
+      changed_when: false
+      delegate_to: "localhost"

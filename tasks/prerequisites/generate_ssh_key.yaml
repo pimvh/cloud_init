@@ -1,0 +1,36 @@
+---
+- name: Generate an SSH key for Ansible user and generate host key
+  delegate_to: "localhost"
+  block:
+    - name: Create and change permission on temporary key directory (clientside)
+      ansible.builtin.tempfile:
+        state: directory
+      check_mode: false
+      changed_when: false
+      register: _tempfile
+
+    - name: Generate SSH key with role
+      ansible.builtin.include_role:
+        name: ssh_keygen
+        apply:
+          delegate_to: localhost
+      vars:
+        ssh_keygen_storagedir: "{{ _tempfile.path }}"
+        ssh_keygen_keyname: "id_ansible_{{ cloud_init_machine_name }}"
+        ssh_keygen_comment: "Ansible@{{ cloud_init_machine_name }}"
+        ssh_keygen_cipher: ed25519
+
+    - name: Set generated key as fact
+      ansible.builtin.set_fact:
+        # default filter for allowing checkmode to generate a template
+        _github_public_sshkey: "{{ ssh_keygen_created_publickey | default('<< will be generated >>') }}"
+        _github_private_sshkey: "{{ ssh_keygen_created_privatekey | default(['<< will be generated >>']) }}"
+
+  always:
+    - name: Remove temporary directory (clientside)
+      ansible.builtin.file:
+        name: "{{ _tempfile.path }}"
+        state: absent
+      check_mode: false
+      changed_when: false
+      delegate_to: "localhost"

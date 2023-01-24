@@ -1,0 +1,36 @@
+---
+cloud_init_machine_name: ""
+cloud_init_github_token: ""
+cloud_init_path: "/etc/vm-cloud-init"
+
+cloud_init_userdata: {}
+cloud_init_networkdata: {}
+cloud_init_netplan_routes:
+cloud_init_netplan_nameservers: []
+
+cloud_init_register_github_key: true
+cloud_init_add_to_known_hosts: true
+cloud_init_reboot_on_finish: true
+cloud_init_enable_ssh_ca: true
+
+cloud_init_ssh_host_ca_privatekey: ""
+cloud_init_ssh_host_ca_privatekey_pass: ""
+cloud_init_ssh_host_ca_publickey: ""
+cloud_init_ssh_user_ca_publickeys: []
+
+cloud_init_enable_ansible_pull: false
+cloud_init_ansible_pull_url: ""
+cloud_init_ansible_playbook_name: ""
+
+cloud_init_host_ca_validity_period: 520w
+cloud_init_ssh_ca_runcmd:
+  # configure ca usage on the server
+  - echo "@cert-authority * $(cat /etc/ssh/host_ca.pub)" >> /etc/ssh/ssh_known_hosts
+  # just remove the host CAs public key
+  - rm -f /etc/ssh/host_ca.pub
+  # configure new signed host certificates
+  # Consider just writing out the entire file
+  - echo "HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub" >> /etc/ssh/sshd_config
+  - echo "TrustedUserCAKeys /etc/ssh/ssh_trusted_user_ca_keys" >> /etc/ssh/sshd_config
+  # restart sshd to make changes have effect
+  - systemctl restart sshd

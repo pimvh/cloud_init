@@ -1,0 +1,137 @@
+---
+- name: Assert required variables for role are defined
+  ansible.builtin.include_tasks:
+    file: assert.yaml
+    apply:
+      delegate_to: localhost
+      run_once: true
+      tags:
+        - cloud_init_assert
+  tags:
+    - cloud_init_assert
+
+- name: Create vm-cloud-init directory if not present
+  ansible.builtin.file:
+    path: "{{ cloud_init_path }}"
+    state: directory
+    mode: u=rwx,g=rx,o=x
+    owner: root
+    group: root
+  become: true
+  tags:
+    - cloud_init_setup
+
+- name: Fetch Github hostkeys
+  ansible.builtin.include_tasks:
+    file: prerequisites/github_hostkeys.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+
+- name: Generate SSH keys
+  ansible.builtin.include_tasks:
+    file: prerequisites/generate_ssh_key.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+  when: cloud_init_register_github_key
+
+- name: Generate signed host key
+  ansible.builtin.include_tasks:
+    file: prerequisites/generate_signed_host_key.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  when: cloud_init_enable_ssh_ca
+
+- name: Configure SSH CA
+  ansible.builtin.include_tasks:
+    file: prerequisites/ssh_ca.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+  when: cloud_init_enable_ssh_ca
+
+- name: Set correct SSH host ca variables
+  block:
+    - name: Fetch ssh_host_ca_ssh_keys when not defined
+      ansible.builtin.include_vars:
+        file: ssh_host_ca_keys.yaml
+      when: not cloud_init_userdata.ssh_host_ca_keys is defined
+
+    - name: Fetch ssh_host_ca_ssh_keys when not defined
+      ansible.builtin.set_fact:
+        _ssh_host_ca_keys: "{{ cloud_init_userdata.ssh_host_ca_keys }}"
+      when: cloud_init_userdata.ssh_host_ca_ssh_keys is defined
+
+- name: Set correct SSH ca write files variables
+  block:
+    - name: Fetch ssh_ca_write_files when not defined
+      ansible.builtin.include_vars:
+        file: ssh_ca_write_files.yaml
+      when: not cloud_init_userdata.ssh_ca_write_files is defined
+
+    - name: Fetch ssh_ca_write_files when not defined
+      ansible.builtin.set_fact:
+        _ssh_ca_write_files: "{{ cloud_init_userdata.ssh_ca_write_files }}"
+      when: cloud_init_userdata.ssh_ca_write_files is defined
+
+- name: Template cloud_init user-data configuration
+  tags:
+    - cloud_init_update
+  block:
+    - name: Create cloud_init user-data template
+      ansible.builtin.template:
+        src: cloud_init/user-data.yaml.j2
+        dest: "{{ cloud_init_path }}/user-data-{{ cloud_init_machine_name }}.yaml"
+        validate: cloud-init schema --config-file %s
+        mode: u=rw,g=r,o=
+      become: true
+
+- name: Template cloud_init network-data configuration
+  tags:
+    - cloud_init_update
+  block:
+    - name: Fetch netplan when not defined
+      ansible.builtin.include_vars:
+        file: netplan.yaml
+      when: not cloud_init_networkdata.netplan is defined
+
+    - name: Set netplan when not present
+      ansible.builtin.set_fact:
+        _netplan: "{{ cloud_init_networkdata.netplan }}"
+      when: cloud_init_networkdata.netplan is defined
+
+    - name: Create cloud init networking template
+      ansible.builtin.template:
+        src: cloud_init/network-data.yaml.j2
+        dest: "{{ cloud_init_path }}/network-data-{{ cloud_init_machine_name }}.yaml"
+        validate: cloud-init schema --config-file %s
+        mode: u=rw,g=r,o=
+      become: true
+
+- name: Register Github SSH key
+  ansible.builtin.include_tasks:
+    file: postactions/github_register_ssh_key.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+  when: cloud_init_register_github_key
+
+- name: Add Host CA to known hosts
+  ansible.builtin.include_tasks:
+    file: postactions/add_ca_to_known_hosts.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+  when: cloud_init_add_to_known_hosts and cloud_init_enable_ssh_ca
