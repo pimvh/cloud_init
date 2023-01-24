@@ -120,12 +120,12 @@ roles:
 # TLDR - What will happen if I run this
 
 - Assert required variables are defined
-- Create directory to start cloud_init files
+- Create directory to start cloud-init files
 - Fetch Github hostkeys (when requested)
 - Generate Github SSH-key (when requested)
 - Configure SSH Host CAs and User CAs (when requested)
-- Template Cloud_init userdata
-- Template Cloud_init networkdata
+- Template cloud-init userdata
+- Template cloud-init networkdata
 - Register Github SSH-key (when requested)
 - Add SSH CA to known hosts (when requested)
 - Add SSH Host CA to known hosts (when requested)
