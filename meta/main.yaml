@@ -14,9 +14,9 @@ galaxy_info:
         - bullseye
 
   galaxy_tags:
-    - cloud-init
+    - cloudinit
     - sshcas
-    - ansible-pull
+    - ansiblepull
     - githubkeys
     - dualstack
 
