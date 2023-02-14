@@ -26,8 +26,7 @@ ssh_publish_hostkeys:
 # Write pre-generated SSH keys to the host, including signed certificate
 ssh_keys:
 {{ _ssh_host_ca_keys | to_nice_yaml(indent=2, sort_keys=False, default_style='|') | indent(2, true) }}
-{% endif %}
-
+{% endif -%}
 {#
  # Add groups to the system
  # The following example adds the ubuntu group with members 'root' and 'sys'
@@ -213,7 +212,7 @@ ansible:
   run_user: ansible
   pull:
     url: "{{ cloud_init_ansible_pull_url }}"
-    playbook-name: "{{ cloud_init_ansible_playbook_name }}"
+    playbook_name: "{{ cloud_init_ansible_playbook_name }}"
 {% endif %}
 {#
  # packages:
