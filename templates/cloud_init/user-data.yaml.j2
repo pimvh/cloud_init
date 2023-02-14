@@ -212,8 +212,9 @@ ansible:
   package_name: ansible
   run_user: ansible
   pull:
-    url: "{{ cloud_init_ansible_pull_url }}"
-    playbook_name: "{{ cloud_init_ansible_playbook_name }}"
+    url: {{ cloud_init_ansible_pull_url }}
+    playbook_name: {{ cloud_init_ansible_playbook_name }}
+    private_key: /home/ansible/id_github
 {% endif %}
 {#
  # packages:
