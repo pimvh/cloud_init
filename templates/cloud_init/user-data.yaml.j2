@@ -208,7 +208,7 @@ packages:
 {% if cloud_init_enable_ansible_pull %}
 # Ansible bootstrap
 ansible:
-  install-method: pip
+  install_method: pip
   run_user: ansible
   pull:
     url: "{{ cloud_init_ansible_pull_url }}"
