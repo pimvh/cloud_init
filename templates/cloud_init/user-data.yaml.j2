@@ -210,6 +210,7 @@ packages:
 # Ansible bootstrap
 ansible:
   install-method: pip
+  run_user: ansible
   pull:
     url: "{{ cloud_init_ansible_pull_url }}"
     playbook-name: "{{ cloud_init_ansible_playbook_name }}"
