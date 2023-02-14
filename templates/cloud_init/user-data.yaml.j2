@@ -144,7 +144,6 @@ write_files:
   - path: /etc/ssh/ssh_known_hosts
     owner: root:root
     permissions: "0644"
-    defer: true
     content: |
 {% for line in _github_hostkeys %}
       {{ line }}
@@ -172,12 +171,10 @@ write_files:
     defer: true
     content: |
       Host github.com
-        Hostname ssh.github.com
+        Hostname github.com
         IdentityFile ~/.ssh/id_github
-        port 443
 
       Host *
-        UseKeychain yes
         IdentitiesOnly yes
 {% endif -%}
 {% if cloud_init_enable_ssh_ca is sameas true -%}
@@ -188,7 +185,7 @@ write_files:
 {% if cloud_init_userdata.write_files -%}
 {{ cloud_init_userdata.write_files | to_nice_yaml(indent=2, sort_keys=False) }}
 {% endif -%}
-{% endif %}
+{% endif -%}
 
 {% if cloud_init_userdata.runcmd is defined or cloud_init_userdata.enable_ssh_ca is defined %}
 runcmd:
