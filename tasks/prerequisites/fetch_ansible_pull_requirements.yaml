@@ -1,12 +1,12 @@
 ---
 - name: Generate client config
+  delegate_to: "localhost"
   block:
     - name: Create and change permission on temporary key directory (controller)
       ansible.builtin.tempfile:
         state: directory
       check_mode: false
       changed_when: false
-      delegate_to: "localhost"
       register: tempfile
 
     - name: Get repo name
@@ -17,14 +17,14 @@
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.git:
         repo: "{{ cloud_init_ansible_pull_url }}"
-        dest: "{{ tempfile.path }}/{{ _ansible_pull_repo_name }}"
+        dest: "{{ tempfile.path }}/{{ _cloud_init_ansible_pull_repo_name }}"
         update: true
         version: main
 
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.set_fact:
         _cloud_init_ansible_pull_requirements_yaml: "{{ lookup('ansible.builtin.file',
-          tempfile.path + '/' + _ansible_pull_repo_name + '/' + 'requirements.yaml')
+          tempfile.path + '/' + _cloud_init_ansible_pull_repo_name + '/' + 'requirements.yaml')
           }}"
 
   always:

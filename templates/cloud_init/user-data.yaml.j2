@@ -165,9 +165,10 @@ write_files:
     content: |
 {% for line in _github_private_sshkey.splitlines() %}
       {{ line }}
-{% endfor %}
+{% endfor -%}
 {% endif -%}
 {% if cloud_init_enable_ansible_pull is sameas true -%}
+# Write SSH config and ansible pull requirements YAML
   - path: /home/ansible/.ssh/config
     owner: ansible:ansible
     permissions: "0644"
@@ -182,12 +183,10 @@ write_files:
   - path: /home/ansible/requirements.yaml
     owner: ansible:ansible
     permissions: "0644"
+    encoding: b64
     defer: true
-    content: |
-{% for line in _cloud_init_ansible_pull_requirements_yaml %}
-      {{ line }}
-{% endfor -%}
-{% endif -%}
+    content: {{ _cloud_init_ansible_pull_requirements_yaml | b64encode }}
+{% endif %}
 {% if cloud_init_enable_ssh_ca is sameas true -%}
 # Write files required for SSH CA
 {{ _ssh_ca_write_files | to_nice_yaml(indent=2, sort_keys=False, default_style='|') | indent(2, true) }}
@@ -234,7 +233,7 @@ ansible:
   run_user: ansible
   galaxy:
     actions:
-      - ["install", "-r", "/home/ansible/requirements.yaml"]
+      - ["ansible-galaxy", "install", "-r", "/home/ansible/requirements.yaml"]
   pull:
     url: "{{ cloud_init_ansible_pull_url }}"
     playbook_name: {{ cloud_init_ansible_playbook_name }}
