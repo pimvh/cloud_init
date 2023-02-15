@@ -58,6 +58,16 @@
     - cloud_init_update
   when: cloud_init_enable_ssh_ca
 
+- name: Fetch ansible_pull required roles
+  ansible.builtin.include_tasks:
+    file: prerequisites/fetch_ansible_pull_requirements.yaml
+    apply:
+      tags:
+        - cloud_init_update
+  tags:
+    - cloud_init_update
+  when: cloud_init_enable_ansible_pull
+
 - name: Set correct SSH host ca variables
   block:
     - name: Fetch ssh_host_ca_ssh_keys when not defined

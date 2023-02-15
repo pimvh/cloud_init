@@ -1,0 +1,31 @@
+---
+- name: Generate client config
+  block:
+    - name: Create and change permission on temporary key directory (controller)
+      ansible.builtin.tempfile:
+        state: directory
+      check_mode: false
+      changed_when: false
+      delegate_to: "localhost"
+      register: tempfile
+
+    - name: Fetch ansible pull requirements file from pull repo
+      ansible.builtin.git:
+        repo: "{{ cloud_init_ansible_pull_url }}"
+        dest: "{{ tempfile.path }}/{{ github_repo | split('.') | first }}"
+        update: true
+        version: main
+
+    - name: Set requirements.yaml of ansible_pull repo as variable
+      ansible.builtin.set_fact:
+        _ansible_pull_requirements_yaml: "{{ lookup('ansible.builtin.file', tempfile.path
+          + '/' + github_repo | split('.') | first + 'requirements.yaml') }}"
+
+  always:
+    - name: Remove temporary directory (controller)
+      ansible.builtin.file:
+        name: "{{ tempfile.path }}"
+        state: absent
+      check_mode: false
+      changed_when: false
+      delegate_to: "localhost"

@@ -149,6 +149,7 @@ write_files:
       {{ line }}
 {% endfor -%}
 {% endif -%}
+{# refactor to if cloud_init_enable_ansible_pull #}
 {% if cloud_init_register_github_key is sameas true -%}
 # Write SSH key to connect to Github
   - path: /home/ansible/.ssh/id_github.pub
@@ -165,6 +166,8 @@ write_files:
 {% for line in _github_private_sshkey.splitlines() %}
       {{ line }}
 {% endfor %}
+{% endif -%}
+{% if cloud_init_enable_ansible_pull is sameas true -%}
   - path: /home/ansible/.ssh/config
     owner: ansible:ansible
     permissions: "0644"
@@ -176,6 +179,14 @@ write_files:
 
       Host *
         IdentitiesOnly yes
+  - path: /home/ansible/requirements.yaml
+    owner: ansible:ansible
+    permissions: "0644"
+    defer: true
+    content: |
+{% for line in _ansible_pull_requirements_yaml %}
+      {{ line }}
+{% endfor -%}
 {% endif -%}
 {% if cloud_init_enable_ssh_ca is sameas true -%}
 # Write files required for SSH CA
@@ -221,6 +232,9 @@ ansible:
   install_method: pip
   package_name: ansible
   run_user: ansible
+  galaxy:
+    actions:
+      - ["install", "-r", "/home/ansible/requirements.yaml"]
   pull:
     url: "{{ cloud_init_ansible_pull_url }}"
     playbook_name: {{ cloud_init_ansible_playbook_name }}
