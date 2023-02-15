@@ -184,7 +184,7 @@ write_files:
     permissions: "0644"
     defer: true
     content: |
-{% for line in _ansible_pull_requirements_yaml %}
+{% for line in _cloud_init_ansible_pull_requirements_yaml %}
       {{ line }}
 {% endfor -%}
 {% endif -%}
