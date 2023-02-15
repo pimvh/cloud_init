@@ -9,17 +9,23 @@
       delegate_to: "localhost"
       register: tempfile
 
+    - name: Get repo name
+      ansible.builtin.set_fact:
+        # only take repo name
+        _ansible_pull_repo_name: '{{ cloud_init_ansible_pull_url | regex_replace("/(.*)\.",
+          "\1")}}'
+
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.git:
         repo: "{{ cloud_init_ansible_pull_url }}"
-        dest: "{{ tempfile.path }}/{{ github_repo | split('.') | first }}"
+        dest: "{{ tempfile.path }}/{{ _ansible_pull_repo_name }}"
         update: true
         version: main
 
-    - name: Set requirements.yaml of ansible_pull repo as variable
+    - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.set_fact:
         _ansible_pull_requirements_yaml: "{{ lookup('ansible.builtin.file', tempfile.path
-          + '/' + github_repo | split('.') | first + 'requirements.yaml') }}"
+          + '/' + _ansible_pull_repo_name + '/' + 'requirements.yaml') }}"
 
   always:
     - name: Remove temporary directory (controller)
