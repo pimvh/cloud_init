@@ -127,13 +127,15 @@ roles:
 - Template cloud-init userdata
 - Template cloud-init networkdata
 - Register Github SSH-key (when requested)
+- Configure Ansible-pull by putting requirements.yaml of the repo_url in the cloud-int config (when requested)
+- Run Ansible-pull as the ansible user on the system (when requested)
 - Add SSH CA to known hosts (when requested)
 - Add SSH Host CA to known hosts (when requested)
 
 # Future Improvements
 
-- Consider a different way of signing hostkey, by creating cert beforehand (circumvents adhoc signing of key)
 - Make key generation non interactive
+- Clean up logic of user-data.yaml.j2 by encoding files.
 
 # Sources
 
