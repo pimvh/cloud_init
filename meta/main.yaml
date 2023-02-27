@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Pim van Helvoirt
   description: Role to configure cloud-init.
@@ -21,3 +22,234 @@ galaxy_info:
     - dualstack
 
 dependencies: []
+
+argument_specs:
+  main:
+    short_description: The main entry for this cloud-init role
+    description: >
+      This entrypoint of the cloud-init role generates a cloud-init user-data.yaml
+      and network-data.yaml in the requested folder.
+    options:
+      cloud_init_machine_name:
+        type: str
+        required: true
+        description: The name of the machine to configure cloud-init for.
+
+      cloud_init_github_token:
+        type: str
+        required: true
+        description: A github token to interact with github with.
+
+      cloud_init_path:
+        type: str
+        required: false
+        default: /etc/vm-cloud-init
+        description: The path where to save the generated cloud-init config.
+
+      cloud_init_userdata:
+        type: dict
+        required: true
+        description: cloud-init userdata, passed to underlying role cloud_init
+        options:
+          hostname:
+            type: str
+            required: true
+            description: hostname of the VM
+          fqdn:
+            type: str
+            required: true
+            description: the fqdn of the VM
+          groups:
+            type: list
+            elements: str
+            required: true
+            description: Additional groups to create on the VM (pass [] for none)
+          users:
+            type: list
+            elements: dict
+            required: true
+            description: Additional users to create on the VM, which will only create
+              an ansible user (pass [] for none), passed directly into the cloud-init
+              yaml, see docs for full options. Some things are validate here.
+            options:
+              name:
+                type: str
+                required: true
+                description: name of the user
+              gecos:
+                type: str
+                required: true
+                description: descriptive name of the user
+              shell:
+                type: str
+                required: true
+                description: shell for the new user
+              sudo:
+                type: str
+                required: true
+                description: sudo string for the new user
+              groups:
+                type: str
+                required: true
+                description: groups for the new user (,_ seperated)
+              passwd:
+                type: str
+                required: true
+                description: password for the new user
+              lock_passwd:
+                type: bool
+                required: true
+                description: whether to lock the user (should be false)
+
+          runcmd:
+            type: list
+            elements: str
+            required: false
+            description: Additional commands to run on the system
+
+          packages:
+            type: list
+            elements: str
+            required: false
+            description: Additional packages to install on the system
+
+      cloud_init_networkdata:
+        type: dict
+        required: true
+        options:
+          ipv4:
+            type: str
+            required: false
+            description: IPv4 address of the VM
+          ipv6:
+            type: str
+            required: false
+            description: IPv6 address of the VM
+          netplan:
+            type: dict
+            required: false
+            description: Full netplan config of the VM, can be based on defaults,
+              see following variables
+
+      cloud_init_netplan_routes:
+        type: list
+        elements: dict
+        required: false
+        description: network-data to pass into the network-data.yaml configuration
+          file.
+        options:
+          to:
+            type: str
+            required: true
+            description: the destination of the route
+          via:
+            type: str
+            required: true
+            description: the IP-addr via which the route should run
+
+      cloud_init_netplan_nameservers:
+        type: dict
+        required: false
+        description: The nameservers that are set in the cloud-init network-data.
+        options:
+          addresses:
+            type: list
+            elements: str
+            required: true
+            description: The addresses nameservers.
+
+      cloud_init_register_github_key:
+        type: bool
+        required: false
+        default: true
+        description: Boolean on whether to register the key at Github.
+
+      cloud_init_add_to_known_hosts:
+        type: bool
+        required: false
+        default: true
+        description: Boolean on whether to add the Host CA to the local known hosts
+          file
+
+      cloud_init_reboot_on_finish:
+        type: bool
+        required: false
+        default: true
+        description: Boolean on whether to reboot cloud_init on finish
+
+      cloud_init_enable_ssh_ca:
+        type: bool
+        required: false
+        default: true
+        description: Boolean on whether to use SSH CA for the hostkey and for the
+          user access.
+
+      cloud_init_ssh_host_ca_privatekey:
+        type: str
+        required: false
+        default: ""
+        description: The private key of the host ca to sign the Host key of the new
+          machine with.
+
+      cloud_init_ssh_host_ca_privatekey_pass:
+        type: str
+        required: false
+        default: ""
+        description: The passphrase of private key of the host ca to sign the Host
+          key of the new machine with.
+
+      cloud_init_ssh_host_ca_publickey:
+        type: str
+        required: false
+        default: ""
+        description: The public key of the host ca to embed in the machines known
+          host file.
+
+      cloud_init_ssh_user_ca_publickeys:
+        type: list
+        elements: str
+        required: false
+        default: ""
+        description: A list of trusted public keys which are user CAs.
+
+      cloud_init_host_ca_validity_period:
+        type: str
+        required: false
+        default: "520w"
+        description: The validatity period of the host certificate.
+
+      cloud_init_ca_runcmd:
+        type: list
+        elements: str
+        required: false
+        description: The command to run on the host related to setting up the SSH
+          certificates.
+        default:
+          # configure ca usage on the server
+          - echo "@cert-authority * $(cat /etc/ssh/host_ca.pub)" >> /etc/ssh/ssh_known_hosts
+          # just remove the host CAs public key
+          - rm -f /etc/ssh/host_ca.pub
+          # configure new signed host certificates
+          # Consider just writing out the entire file
+          - echo "HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub" >> /etc/ssh/sshd_config
+          - echo "TrustedUserCAKeys /etc/ssh/ssh_trusted_user_ca_keys" >> /etc/ssh/sshd_config
+          # restart sshd to make changes have effect
+          - systemctl restart sshd
+
+      cloud_init_enable_ansible_pull:
+        type: bool
+        required: false
+        default: false
+        description: Boolean on whether to enable Ansible pull for this host.
+
+      cloud_init_ansible_pull_url:
+        type: str
+        required: false
+        default: ""
+        description: Url to use for Ansible pull.
+
+      cloud_init_ansible_playbook_name:
+        type: str
+        required: false
+        default: ""
+        description: Playbook name to use for Ansible pull.
