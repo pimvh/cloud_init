@@ -45,6 +45,7 @@
   loop:
     - cloud_init_networkdata.ipv4
     - cloud_init_networkdata.ipv6
+  when: not cloud_init_networkdata.netplan is defined
 
 - name: Verify that required cloud_init_networkdata routes are defined
   ansible.builtin.assert:
@@ -57,7 +58,7 @@
   diff: false
   loop:
     - cloud_init_netplan_routes
-  when: not cloud_init_networkdata.routes is defined
+  when: not cloud_init_networkdata.netplan.routes is defined
 
 - name: Verify that required cloud_init_networkdata nameservers are defined
   ansible.builtin.assert:
@@ -70,4 +71,4 @@
   diff: false
   loop:
     - cloud_init_netplan_nameservers
-  when: not cloud_init_networkdata.nameservers is defined
+  when: not cloud_init_networkdata.netplan.nameservers is defined
