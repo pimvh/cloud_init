@@ -20,6 +20,7 @@ Review the variables as shown in defaults.
 
 ```
 cloud_init_machine_name: ""
+cloud_init_machine_ssh_passhrase: ""
 cloud_init_github_token: ""
 
 cloud_init_userdata: {}

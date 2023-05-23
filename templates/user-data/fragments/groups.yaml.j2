@@ -1,0 +1,13 @@
+{#
+ # Add groups to the system
+ # The following example adds the ubuntu group with members 'root' and 'sys'
+ # and the empty group cloud-users.
+ # groups:
+ #   - admingroup: [root,sys]
+ #   - cloud-users
+ #}
+{% if cloud_init_userdata.groups is defined %}
+{% if cloud_init_userdata.groups %}
+{{ cloud_init_userdata.groups | to_nice_yaml }}
+{% endif %}
+{% endif %}

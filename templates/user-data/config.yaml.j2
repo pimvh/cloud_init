@@ -1,0 +1,46 @@
+#cloud-config
+{{ ansible_managed | comment }}
+{#
+ # How to set setting on how to merge variables
+ # unused
+ #merge_how:
+ # - name: list
+ #   settings: [append]
+ # - name: dict
+ #   settings: [recurse_array]
+ #
+ #}
+preserve_hostname: false
+hostname: {{ cloud_init_userdata.hostname }}
+fqdn: {{ cloud_init_userdata.fqdn }}
+manage_etc_hosts: true
+# disable ssh password authentication
+ssh_pwauth: false
+# disable root login
+disable_root: true
+# delete potential builtin keys in the image
+ssh_deletekeys: true
+# do not take public ssh keys from the datasource
+allow_public_ssh_keys: false
+
+# do not output keygen to logs
+ssh_quiet_keygen: true
+
+ssh_publish_hostkeys:
+  enabled: false # do not publish ssh keys to datasource
+
+{% include 'templates/user-data/fragments/ssh_ca.yaml.j2' %}
+{% include 'templates/user-data/fragments/groups.yaml.j2' %}
+{% include 'templates/user-data/fragments/users.yaml.j2' %}
+{% include 'templates/user-data/fragments/write_files.yaml.j2' %}
+{% include 'templates/user-data/fragments/runcmd.yaml.j2' %}
+{% include 'templates/user-data/fragments/packages.yaml.j2' %}
+{% include 'templates/user-data/fragments/ansible_pull.yaml.j2' %}
+
+{% if cloud_init_reboot_on_finish is sameas true -%}
+# Reboot when done
+power_state:
+    delay: now
+    mode: reboot
+    message: Rebooting machine
+{% endif %}

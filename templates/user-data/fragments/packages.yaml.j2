@@ -1,0 +1,55 @@
+{#
+ # packages:
+ #   - ansible
+ #   - git
+ # Default user creation:
+ #
+ # Unless you define users, you will get a 'ubuntu' user on Ubuntu systems with the
+ # legacy permission (no password sudo, locked user, etc). If however, you want
+ # to have the 'ubuntu' user in addition to other users, you need to instruct
+ # cloud-init that you also want the default user. To do this use the following
+ # syntax:
+ #   users:
+ #     - default
+ #     - bob
+ #     - ....
+ #  foobar: ...
+ #
+ # users[0] (the first user in users) overrides the user directive.
+ #
+ # The 'default' user above references the distro's config:
+ # system_info:
+ #   default_user:
+ #     name: Ubuntu
+ #     plain_text_passwd: 'ubuntu'
+ #     home: /home/ubuntu
+ #     shell: /bin/bash
+ #     lock_passwd: True
+ #     gecos: Ubuntu
+ #     groups: [adm, audio, cdrom, dialout, floppy, video, plugdev, dip, netdev]
+ #packages_update: true
+ #packages_upgrade: true
+ #
+ # if you're already installing other packages, you may
+ # wish to manually install ansible to avoid multiple calls
+ # to your package manager
+ # packages:
+ #   - ansible
+ #   - git
+ # ansible:
+ #   install-method: pip
+ #   pull:
+ #     url: "https://github.com/holmanb/vmboot.git"
+ #     playbook-name: ubuntu.yml
+ #}
+# Packages to install
+packages:
+# Default packages
+  - git
+  - python3-pip
+{% if cloud_init_userdata.packages is defined -%}
+{% if cloud_init_userdata.packages -%}
+# Additional packages
+{{ cloud_init_userdata.packages | to_nice_yaml(indent=2, sort_keys=False) | indent(2, true) }}
+{% endif -%}
+{% endif %}

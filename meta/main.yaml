@@ -4,7 +4,7 @@ galaxy_info:
   description: Role to configure cloud-init.
 
   license: license (GPL-3.0-only)
-  min_ansible_version: 2.1
+  min_ansible_version: "2.14"
 
   platforms:
     - name: Ubuntu
@@ -27,13 +27,17 @@ argument_specs:
   main:
     short_description: The main entry for this cloud-init role
     description: >
-      This entrypoint of the cloud-init role generates a cloud-init user-data.yaml
-      and network-data.yaml in the requested folder.
+      This entrypoint of the cloud-init role generates a cloud-init user-data.yaml and network-data.yaml in the requested folder.
     options:
       cloud_init_machine_name:
         type: str
         required: true
         description: The name of the machine to configure cloud-init for.
+
+      cloud_init_machine_ssh_passhrase:
+        type: str
+        required: true
+        description: The passphrase of the ssh key on the VM.
 
       cloud_init_github_token:
         type: str
@@ -45,6 +49,18 @@ argument_specs:
         required: false
         default: /etc/vm-cloud-init
         description: The path where to save the generated cloud-init config.
+
+      cloud_init_template_networkdata:
+        type: bool
+        required: false
+        default: true
+        description: Whether to template network data
+
+      cloud_init_template_userdata:
+        type: bool
+        required: false
+        default: true
+        description: Whether to template user data
 
       cloud_init_userdata:
         type: dict
@@ -68,9 +84,9 @@ argument_specs:
             type: list
             elements: dict
             required: true
-            description: Additional users to create on the VM, which will only create
-              an ansible user (pass [] for none), passed directly into the cloud-init
-              yaml, see docs for full options. Some things are validate here.
+            description: |
+              Additional users to create on the VM, which will only create an ansible user (pass [] for none),
+              passed directly into the cloud-init yaml, see docs for full options. Some things are validate here.
             options:
               name:
                 type: str
@@ -128,15 +144,13 @@ argument_specs:
           netplan:
             type: dict
             required: false
-            description: Full netplan config of the VM, can be based on defaults,
-              see following variables
+            description: Full netplan config of the VM, can be based on defaults, see following variables
 
       cloud_init_netplan_routes:
         type: list
         elements: dict
         required: false
-        description: network-data to pass into the network-data.yaml configuration
-          file.
+        description: network-data to pass into the network-data.yaml configuration file.
         options:
           to:
             type: str
@@ -168,8 +182,7 @@ argument_specs:
         type: bool
         required: false
         default: true
-        description: Boolean on whether to add the Host CA to the local known hosts
-          file
+        description: Boolean on whether to add the Host CA to the local known hosts file
 
       cloud_init_reboot_on_finish:
         type: bool
@@ -181,29 +194,25 @@ argument_specs:
         type: bool
         required: false
         default: true
-        description: Boolean on whether to use SSH CA for the hostkey and for the
-          user access.
+        description: Boolean on whether to use SSH CA for the hostkey and for the user access.
 
       cloud_init_ssh_host_ca_privatekey:
         type: str
         required: false
         default: ""
-        description: The private key of the host ca to sign the Host key of the new
-          machine with.
+        description: The private key of the host ca to sign the Host key of the new machine with.
 
       cloud_init_ssh_host_ca_privatekey_pass:
         type: str
         required: false
         default: ""
-        description: The passphrase of private key of the host ca to sign the Host
-          key of the new machine with.
+        description: The passphrase of private key of the host ca to sign the Host key of the new machine with.
 
       cloud_init_ssh_host_ca_publickey:
         type: str
         required: false
         default: ""
-        description: The public key of the host ca to embed in the machines known
-          host file.
+        description: The public key of the host ca to embed in the machines known host file.
 
       cloud_init_ssh_user_ca_publickeys:
         type: list
@@ -222,8 +231,7 @@ argument_specs:
         type: list
         elements: str
         required: false
-        description: The command to run on the host related to setting up the SSH
-          certificates.
+        description: The command to run on the host related to setting up the SSH certificates.
         default:
           # configure ca usage on the server
           - echo "@cert-authority * $(cat /etc/ssh/host_ca.pub)" >> /etc/ssh/ssh_known_hosts

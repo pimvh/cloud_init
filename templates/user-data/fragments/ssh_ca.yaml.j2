@@ -1,0 +1,5 @@
+{% if cloud_init_enable_ssh_ca is sameas true -%}
+# Write pre-generated SSH keys to the host, including signed certificate
+ssh_keys:
+{{ _ssh_host_ca_keys | to_nice_yaml(indent=2, sort_keys=False, default_style='|') | indent(2, true) }}
+{% endif -%}

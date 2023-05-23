@@ -1,5 +1,6 @@
 ---
 cloud_init_machine_name: ""
+cloud_init_machine_ssh_passhrase: ""
 cloud_init_github_token: ""
 cloud_init_path: "/etc/vm-cloud-init"
 
@@ -7,6 +8,9 @@ cloud_init_userdata: {}
 cloud_init_networkdata: {}
 cloud_init_netplan_routes:
 cloud_init_netplan_nameservers: []
+
+cloud_init_template_networkdata: true
+cloud_init_template_userdata: true
 
 cloud_init_register_github_key: true
 cloud_init_add_to_known_hosts: true

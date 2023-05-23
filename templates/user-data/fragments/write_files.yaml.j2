@@ -1,0 +1,54 @@
+write_files:
+{% if cloud_init_add_to_known_hosts is sameas true -%}
+# SSH known hosts for GitHub
+  - path: /etc/ssh/ssh_known_hosts
+    owner: root:root
+    permissions: "0644"
+    encoding: b64
+    content: {{  _github_hostkeys | b64encode }}
+{% endif -%}
+{% if cloud_init_register_github_key is sameas true -%}
+# Write SSH key to connect to Github
+  - path: /home/ansible/.ssh/id_github.pub
+    owner: ansible:ansible
+    permissions: "0644"
+    defer: true
+    encoding: b64
+    content: {{ _github_public_sshkey | b64encode }}
+  - path: /home/ansible/.ssh/id_github
+    owner: ansible:ansible
+    permissions: "0600"
+    defer: true
+    encoding: b64
+    content: {{ _github_private_sshkey | b64encode }}
+{% endif -%}
+{% if cloud_init_enable_ansible_pull is sameas true -%}
+# Write SSH config and ansible pull requirements YAML
+  - path: /home/ansible/.ssh/config
+    owner: ansible:ansible
+    permissions: "0644"
+    defer: true
+    content: |
+      Host github.com
+        Hostname github.com
+        IdentityFile ~/.ssh/id_github
+
+      Host *
+        IdentitiesOnly yes
+  - path: /home/ansible/requirements.yaml
+    owner: ansible:ansible
+    permissions: "0644"
+    encoding: b64
+    defer: true
+    content: {{ _cloud_init_ansible_pull_requirements_yaml | b64encode }}
+{% endif %}
+
+{% if cloud_init_enable_ssh_ca is sameas true -%}
+# Write files required for SSH CA
+{{ _ssh_ca_write_files | to_nice_yaml(indent=2, sort_keys=False, default_style='|') | indent(2, true) }}
+{% endif %}
+{% if cloud_init_userdata.write_files is defined -%}
+{% if cloud_init_userdata.write_files -%}
+{{ cloud_init_userdata.write_files | to_nice_yaml(indent=2, sort_keys=False) }}
+{% endif -%}
+{% endif -%}

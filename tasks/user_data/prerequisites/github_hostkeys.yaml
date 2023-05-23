@@ -2,7 +2,7 @@
 - name: Fetch github hostkeys and set as fact
   block:
     - name: Fetch GitHub hostkeys via API
-      ansible.builtin.shell: >
+      ansible.builtin.shell: >-
         set -o pipefail && curl --silent https://api.github.com/meta |
          jq --raw-output '"github.com "+.ssh_keys[]'
       args:

@@ -1,0 +1,13 @@
+{% if cloud_init_enable_ansible_pull %}
+# Ansible bootstrap
+ansible:
+  install_method: pip
+  package_name: ansible
+  run_user: ansible
+  galaxy:
+    actions:
+      - ["ansible-galaxy", "install", "-r", "/home/ansible/requirements.yaml"]
+  pull:
+    url: "{{ cloud_init_ansible_pull_url }}"
+    playbook_name: {{ cloud_init_ansible_playbook_name }}
+{% endif %}

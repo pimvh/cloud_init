@@ -1,0 +1,22 @@
+---
+- name: Template cloud_init network-data configuration
+  tags:
+    - cloud_init_update
+  block:
+    - name: Fetch netplan when not defined
+      ansible.builtin.include_vars:
+        file: netplan.yaml
+      when: not cloud_init_networkdata.netplan is defined
+
+    - name: Set netplan when not present
+      ansible.builtin.set_fact:
+        _netplan: "{{ cloud_init_networkdata.netplan }}"
+      when: cloud_init_networkdata.netplan is defined
+
+    - name: Create cloud init networking template
+      ansible.builtin.template:
+        src: network-data.yaml.j2
+        dest: "{{ cloud_init_path }}/network-data-{{ cloud_init_machine_name }}.yaml"
+        validate: cloud-init schema --config-file %s
+        mode: u=rw,g=r,o=
+      become: true

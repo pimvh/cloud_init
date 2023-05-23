@@ -1,0 +1,12 @@
+{% if cloud_init_userdata.enable_ssh_ca is sameas true or cloud_init_userdata.runcmd is defined %}
+runcmd:
+{% if cloud_init_enable_ssh_ca is sameas true %}
+{% if cloud_init_ssh_ca_runcmd is defined and cloud_init_ssh_ca_runcmd -%}
+# Initialize SSH CA with commands
+{{ cloud_init_ssh_ca_runcmd | to_nice_yaml(indent=2, sort_keys=False) | indent(2, True) }}
+{% endif %}
+{% endif -%}
+{% if cloud_init_userdata.runcmd is defined and cloud_init_userdata.runcmd -%}
+{{ cloud_init_userdata.runcmd | to_nice_yaml(indent=2, sort_keys=False) | indent(2, True) }}
+{% endif -%}
+{% endif %}
