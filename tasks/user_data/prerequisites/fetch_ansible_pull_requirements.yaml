@@ -29,7 +29,7 @@
     - name: Set generated key as fact
       ansible.builtin.set_fact:
         # default filter for allowing checkmode to generate a template
-        _cloud_init_ansible_pull_requirements_yaml: "{{  cloud_init_ansible_pull_requirements_yaml | default('---\n<< will be populated >>') }}"
+        _cloud_init_ansible_pull_requirements_yaml: "{{ _cloud_init_ansible_pull_requirements_yaml | default('---\n<< will be populated >>') }}"
 
   always:
     - name: Remove temporary directory (controller)
