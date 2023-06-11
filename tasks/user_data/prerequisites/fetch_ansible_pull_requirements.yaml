@@ -1,16 +1,17 @@
 ---
 - name: Generate client config
   delegate_to: "localhost"
+  check_mode: false
   block:
     - name: Create and change permission on temporary key directory (controller)
       ansible.builtin.tempfile:
         state: directory
-      check_mode: false
       changed_when: false
       register: tempfile
 
     - name: Get repo name
       ansible.builtin.set_fact:
+        # just get the last name of the repo before .git, to clone to a directory that makes sense
         _cloud_init_ansible_pull_repo_name: '{{ cloud_init_ansible_pull_url | regex_replace("/(.*)\.", "\1") }}'
 
     - name: Fetch ansible pull requirements file from pull repo
@@ -23,14 +24,7 @@
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.set_fact:
         _cloud_init_ansible_pull_requirements_yaml: >-
-          "{{ lookup('ansible.builtin.file', tempfile.path + '/' + _cloud_init_ansible_pull_repo_name + '/' + 'requirements.yaml') }}"
-      ignore_errors: "{{ ansible_check_mode }}"
-
-    - name: Set generated key as fact
-      ansible.builtin.set_fact:
-        # default filter for allowing checkmode to generate a template
-        _cloud_init_ansible_pull_requirements_yaml: "{{ _cloud_init_ansible_pull_requirements_yaml | default('---\n<< will be populated >>') }}"
-
+          {{ lookup('ansible.builtin.file', tempfile.path + '/' + _cloud_init_ansible_pull_repo_name + '/' + 'requirements.yaml') }}
   always:
     - name: Remove temporary directory (controller)
       ansible.builtin.file:
