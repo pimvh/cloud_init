@@ -5,7 +5,7 @@ write_files:
     owner: root:root
     permissions: "0644"
     encoding: b64
-    content: {{  _github_hostkeys | b64encode }}
+    content: {{  _github_hostkeys | join('\n') | b64encode }}
 {% endif -%}
 {% if cloud_init_register_github_key is sameas true -%}
 # Write SSH key to connect to Github
