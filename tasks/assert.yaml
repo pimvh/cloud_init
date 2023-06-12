@@ -18,7 +18,7 @@
     - cloud_init_ssh_ca_runcmd
   when: cloud_init_enable_ssh_ca is sameas true
 
-- name: Verify that required github_register attributes are defined
+- name: Verify that required cloud_init_ansible_pull attributes are defined
   ansible.builtin.assert:
     that:
       - "{{ item }}  is defined"
@@ -30,21 +30,9 @@
   diff: false
   loop:
     - cloud_init_github_token
-  when: cloud_init_register_github_key is sameas true
-
-- name: Verify that required github_register attributes are defined
-  ansible.builtin.assert:
-    that:
-      - "{{ item }}  is defined"
-      - "{{ item }} | length > 0"
-      - "{{ item }} != None"
-    fail_msg: "{{ item }} needs to be set for the role to work"
-    success_msg: "Required variable {{ item }} is defined"
-  changed_when: false
-  diff: false
-  loop:
-    - cloud_init_ansible_pull_url
-    - cloud_init_ansible_playbook_name
+    - cloud_init_ansible_pull_repo_owner
+    - cloud_init_ansible_pull_repo_name
+    - cloud_init_ansible_pull_playbook_name
   when: cloud_init_enable_ansible_pull is sameas true
 
 - name: Verify that required cloud_init attributes are defined

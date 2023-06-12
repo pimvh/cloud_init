@@ -7,22 +7,22 @@ write_files:
     encoding: b64
     content: {{  _github_hostkeys | join('\n') | b64encode }}
 {% endif -%}
-{% if cloud_init_register_github_key is sameas true -%}
-# Write SSH key to connect to Github
-  - path: /home/ansible/.ssh/id_github.pub
+{% if cloud_init_enable_ansible_pull is sameas true -%}
+# Write SSH deploy key to connect to Github
+  - path: /home/ansible/.ssh/deploy.pub
     owner: ansible:ansible
     permissions: "0644"
     defer: true
     encoding: b64
     content: {{ _github_public_sshkey | b64encode }}
-  - path: /home/ansible/.ssh/id_github
+
+  - path: /home/ansible/.ssh/deploy
     owner: ansible:ansible
     permissions: "0600"
     defer: true
     encoding: b64
     content: {{ _github_private_sshkey | b64encode }}
-{% endif -%}
-{% if cloud_init_enable_ansible_pull is sameas true -%}
+
 # Write SSH config and ansible pull requirements YAML
   - path: /home/ansible/.ssh/config
     owner: ansible:ansible
@@ -31,7 +31,7 @@ write_files:
     content: |
       Host github.com
         Hostname github.com
-        IdentityFile ~/.ssh/id_github
+        IdentityFile ~/.ssh/deploy
 
       Host *
         IdentitiesOnly yes

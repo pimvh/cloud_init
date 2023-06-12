@@ -8,6 +8,6 @@ ansible:
     actions:
       - ["ansible-galaxy", "install", "-r", "/home/ansible/requirements.yaml"]
   pull:
-    url: "{{ cloud_init_ansible_pull_url }}"
-    playbook_name: {{ cloud_init_ansible_playbook_name }}
+    url: "{{ _cloud_init_ansible_pull_url }}"
+    playbook_name: {{ cloud_init_ansible_pull_playbook_name }}
 {% endif %}

@@ -9,22 +9,17 @@
       changed_when: false
       register: tempfile
 
-    - name: Get repo name
-      ansible.builtin.set_fact:
-        # just get the last name of the repo before .git, to clone to a directory that makes sense
-        _cloud_init_ansible_pull_repo_name: '{{ cloud_init_ansible_pull_url | regex_replace("/(.*)\.", "\1") }}'
-
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.git:
-        repo: "{{ cloud_init_ansible_pull_url }}"
-        dest: "{{ tempfile.path }}/{{ _cloud_init_ansible_pull_repo_name }}"
+        repo: "{{ _cloud_init_ansible_pull_url }}"
+        dest: "{{ tempfile.path }}/{{ cloud_init_ansible_pull_repo_name }}"
         update: true
         version: main
 
     - name: Fetch ansible pull requirements file from pull repo
       ansible.builtin.set_fact:
         _cloud_init_ansible_pull_requirements_yaml: >-
-          {{ lookup('ansible.builtin.file', tempfile.path + '/' + _cloud_init_ansible_pull_repo_name + '/' + 'requirements.yaml') }}
+          {{ lookup('ansible.builtin.file', tempfile.path + '/' + cloud_init_ansible_pull_repo_name + '/' + 'requirements.yaml') }}
   always:
     - name: Remove temporary directory (controller)
       ansible.builtin.file:

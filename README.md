@@ -77,7 +77,6 @@ cloud_init_netplan_nameservers:
   #   - 1.1.1.1
   #   - 1.0.0.1
 
-cloud_init_register_github_key: true
 cloud_init_add_to_known_hosts: true
 cloud_init_reboot_on_finish: true
 cloud_init_enable_ssh_ca: true
@@ -90,8 +89,10 @@ cloud_init_ssh_host_ca_publickey: ""
 cloud_init_ssh_user_ca_publickeys: []
 
 cloud_init_enable_ansible_pull: false
-cloud_init_ansible_pull_url: ""
-cloud_init_ansible_playbook_name: ""
+cloud_init_ansible_pull_repo_owner: ""
+cloud_init_ansible_pull_repo_name: ""
+cloud_init_ansible_pull_playbook_name: ""
+cloud_init_ansible_pull_deploy_key_name: "Ansible-pull deploy key"
 
 cloud_init_validity_period: 520w
 cloud_init_ssh_ca_runcmd:
@@ -134,9 +135,6 @@ roles:
 - Add SSH Host CA to known hosts (when requested)
 
 # Future Improvements
-
-- Make key generation non interactive
-- Clean up logic of user-data.yaml.j2 by encoding files.
 
 # Sources
 

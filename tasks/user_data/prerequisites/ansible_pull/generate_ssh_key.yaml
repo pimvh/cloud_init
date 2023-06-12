@@ -24,15 +24,13 @@
         ssh_keygen_keyname: "{{ cloud_init_ssh_keygen_keyname }}"
         ssh_keygen_comment: "Ansible@{{ cloud_init_machine_name }}"
         ssh_keygen_cipher: ed25519
-        ssh_keygen_passphrase: "{{ cloud_init_machine_ssh_passhrase }}"
-
+        ssh_keygen_passphrase: ""
 
     - name: Set newly created key as fact
       ansible.builtin.set_fact:
         _github_public_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname + '.pub') }}"
         _github_private_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname) }}"
       ignore_errors: "{{ ansible_check_mode }}"
-
 
   always:
     - name: Remove temporary directory (clientside)

@@ -8,15 +8,15 @@
   tags:
     - cloud_init_update
 
-- name: Generate SSH keys
+- name: Generate SSH keys for registering as deploy key
   ansible.builtin.include_tasks:
-    file: prerequisites/generate_ssh_key.yaml
+    file: prerequisites/ansible_pull/generate_ssh_key.yaml
     apply:
       tags:
         - cloud_init_update
   tags:
     - cloud_init_update
-  when: cloud_init_register_github_key
+  when: cloud_init_enable_ansible_pull
 
 - name: Generate signed host key
   ansible.builtin.include_tasks:
@@ -36,9 +36,13 @@
     - cloud_init_update
   when: cloud_init_enable_ssh_ca
 
-- name: Fetch ansible_pull required roles
+- name: Build ansible_pull github url
+  ansible.builtin.set_fact:
+    _cloud_init_ansible_pull_url: "git@github.com:{{ cloud_init_ansible_pull_repo_owner }}/{{ cloud_init_ansible_pull_repo_name }}.git"
+
+- name: Fetch ansible_pull requirements.yaml file to embed in cloudinit
   ansible.builtin.include_tasks:
-    file: prerequisites/fetch_ansible_pull_requirements.yaml
+    file: prerequisites/ansible_pull/fetch_requirements.yaml
     apply:
       tags:
         - cloud_init_update
@@ -80,15 +84,15 @@
   tags:
     - cloud_init_update
 
-- name: Register Github SSH key
+- name: Register Github Deploy SSH key
   ansible.builtin.include_tasks:
-    file: postactions/github_register_ssh_key.yaml
+    file: postactions/ansible_pull/register_github_deploy_key.yaml
     apply:
       tags:
         - cloud_init_update
   tags:
     - cloud_init_update
-  when: cloud_init_register_github_key
+  when: cloud_init_enable_ansible_pull
 
 - name: Add Host CA to known hosts
   ansible.builtin.include_tasks:

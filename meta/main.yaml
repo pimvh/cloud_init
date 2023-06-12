@@ -172,12 +172,6 @@ argument_specs:
             required: true
             description: The addresses nameservers.
 
-      cloud_init_register_github_key:
-        type: bool
-        required: false
-        default: true
-        description: Boolean on whether to register the key at Github.
-
       cloud_init_add_to_known_hosts:
         type: bool
         required: false
@@ -250,14 +244,27 @@ argument_specs:
         default: false
         description: Boolean on whether to enable Ansible pull for this host.
 
-      cloud_init_ansible_pull_url:
+      cloud_init_ansible_pull_repo_owner:
         type: str
         required: false
         default: ""
-        description: Url to use for Ansible pull.
+        description: The owner of the Github repo to use for Ansible pull.
 
-      cloud_init_ansible_playbook_name:
+      cloud_init_ansible_pull_repo_name:
+        type: str
+        required: false
+        default: ""
+        description: The name of the Github repo to use for Ansible pull.
+
+      cloud_init_ansible_pull_playbook_name:
         type: str
         required: false
         default: ""
         description: Playbook name to use for Ansible pull.
+
+      cloud_init_ansible_pull_deploy_key_name:
+        type: str
+        required: false
+        default: "Ansible-pull deploy key"
+        description: Playbook name to use for Ansible pull.
+
