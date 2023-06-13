@@ -12,7 +12,7 @@
 
     - name: Generate SSH host key
       ansible.builtin.include_role:
-        name: ssh_keygen
+        name: pimvh.ssh_keygen
         apply:
           delegate_to: localhost
       vars:
