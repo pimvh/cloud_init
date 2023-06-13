@@ -15,7 +15,6 @@ write_files:
     defer: true
     encoding: b64
     content: {{ _github_public_sshkey | b64encode }}
-
   - path: /home/ansible/.ssh/deploy
     owner: ansible:ansible
     permissions: "0600"

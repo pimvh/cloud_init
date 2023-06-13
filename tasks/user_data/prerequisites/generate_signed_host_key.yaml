@@ -40,6 +40,7 @@
          -P "{{ cloud_init_ssh_host_ca_privatekey_pass }}"
          {{ _tempfile.path }}/ssh_host_ed25519_key.pub
       changed_when: true
+      no_log: true
       ignore_errors: "{{ ansible_check_mode }}"
 
     - name: Show key

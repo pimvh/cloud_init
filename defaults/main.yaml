@@ -1,6 +1,7 @@
 ---
 cloud_init_machine_name: ""
 cloud_init_github_token: ""
+cloud_init_ansible_user_passwd_hash: ""
 cloud_init_path: "/etc/vm-cloud-init"
 
 cloud_init_userdata: {}
@@ -32,9 +33,7 @@ cloud_init_ssh_ca_runcmd:
   - echo "@cert-authority * $(cat /etc/ssh/host_ca.pub)" >> /etc/ssh/ssh_known_hosts
   # just remove the host CAs public key
   - rm -f /etc/ssh/host_ca.pub
-  # configure new signed host certificates
-  # Consider just writing out the entire file
-  - echo "HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub" >> /etc/ssh/sshd_config
-  - echo "TrustedUserCAKeys /etc/ssh/ssh_trusted_user_ca_keys" >> /etc/ssh/sshd_config
+  # configure new trustedUserCAkey key by appending the create cloud-init ssh config
+  - echo "TrustedUserCAKeys /etc/ssh/ssh_trusted_user_ca_keys" >> /etc/ssh/sshd_config.d/50-cloud-init.conf
   # restart sshd to make changes have effect
   - systemctl restart sshd

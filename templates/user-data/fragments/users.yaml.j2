@@ -91,6 +91,7 @@ users:
     shell: /bin/bash
     groups: sudo,wheel
     sudo: ALL=(ALL) NOPASSWD:ALL
+    passwd: "{{ cloud_init_ansible_user_passwd_hash }}"
 {{ cloud_init_userdata.users | to_nice_yaml(indent=2, sort_keys=False) | indent(2, true) }}
 {% endif %}
 {% endif -%}

@@ -26,6 +26,10 @@ allow_public_ssh_keys: false
 # do not output keygen to logs
 ssh_quiet_keygen: true
 
+# do not print ssh keys to console
+ssh:
+  emit_keys_to_console: false
+
 ssh_publish_hostkeys:
   enabled: false # do not publish ssh keys to datasource
 
@@ -38,9 +42,12 @@ ssh_publish_hostkeys:
 {% include 'templates/user-data/fragments/ansible_pull.yaml.j2' %}
 
 {% if cloud_init_reboot_on_finish is sameas true -%}
-# Reboot when done
+# cloud-init cannot actually reboot itself in libvirt environments, as the first reboot is different.
+# We can manually restart the VM after it is provisioned, see libvirt role
 power_state:
+    mode: poweroff
     delay: now
-    mode: reboot
-    message: Rebooting machine
+    message: Rebooting machine...
+    timeout: 10
+    condition: true
 {% endif %}

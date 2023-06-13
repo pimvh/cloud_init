@@ -51,5 +51,4 @@ packages:
 {% if cloud_init_userdata.packages -%}
 # Additional packages
 {{ cloud_init_userdata.packages | to_nice_yaml(indent=2, sort_keys=False) | indent(2, true) }}
-{% endif -%}
-{% endif %}
+{% endif %}{% endif %}

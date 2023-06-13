@@ -24,12 +24,13 @@
         ssh_keygen_keyname: "{{ cloud_init_ssh_keygen_keyname }}"
         ssh_keygen_comment: "Ansible@{{ cloud_init_machine_name }}"
         ssh_keygen_cipher: ed25519
-        ssh_keygen_passphrase: ""
+        ssh_keygen_no_passphrase: true
 
     - name: Set newly created key as fact
       ansible.builtin.set_fact:
-        _github_public_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname + '.pub') }}"
-        _github_private_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname) }}"
+        # use rstrip to keep newlines of the ssh keys
+        _github_public_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname + '.pub', rstrip=false) }}"
+        _github_private_sshkey: "{{ lookup('ansible.builtin.file', cloud_init_ssh_keygen_storagedir + '/' + cloud_init_ssh_keygen_keyname, rstrip=false) }}"
       ignore_errors: "{{ ansible_check_mode }}"
 
   always:

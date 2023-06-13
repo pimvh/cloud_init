@@ -34,10 +34,10 @@ argument_specs:
         required: true
         description: The name of the machine to configure cloud-init for.
 
-      cloud_init_machine_ssh_passhrase:
+      cloud_init_ansible_user_passwd_hash:
         type: str
         required: true
-        description: The passphrase of the ssh key on the VM.
+        description: The hash of password of the ansible user on the VM.
 
       cloud_init_github_token:
         type: str
@@ -267,4 +267,3 @@ argument_specs:
         required: false
         default: "Ansible-pull deploy key"
         description: Playbook name to use for Ansible pull.
-
