@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  author: Pim van Helvoirt
+  author: pimvh
   description: Role to configure cloud-init.
 
   license: license (GPL-3.0-only)
